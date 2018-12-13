@@ -21,20 +21,24 @@ global new_box
 
 def apply(img, box, shift):
     end_img = img
-    if box[1].get() != '':
-        option = box[1].get()
-        end_img = fun_light.light(end_img, shift[1].get(), option)
     if box[0].get() != '':
         option = box[0].get()
         end_img = fun_detail.detail(end_img, shift[0].get(), option)    
+        end_img = end_img.astype(np.uint8)
+    if box[1].get() != '':
+        option = box[1].get()
+        end_img = fun_light.light(end_img, shift[1].get(), option)
+        end_img = end_img.astype(np.uint8)
     if (box[2].get() != '')  & (box[3].get() == ''):
         option = box[2].get()
         end_img = fun_color.HSL(end_img, shift[2].get(), option)
+        end_img = end_img.astype(np.uint8)
     elif (box[2].get() != '')  & (box[3].get() != ''):
         color = box[3].get()
         option = box[2].get()
         end_img = fun_color.color_HSL(end_img, color, shift[3].get(), option)
-#    end_img = tools.clip(end_img, 0, 255)   # seriously slows the program
+        end_img = end_img.astype(np.uint8)
+#    end_img = tools.clip_bitwise(end_img, 0, 255)   # seriously slows the program
     return end_img
 
 saved_options = []
@@ -42,13 +46,14 @@ saved_options = []
 def apply_get(shift, box):
     global saved_options
     for i in range(len(box) - 1):
-        if box[i].get() != '':
+        if (box[i].get() != '') & (shift[i].get() != 0):
             if (i == 2) & (box[3].get() != ''):
                 saved_options.append([3, box[2].get(), shift[3].get(), box[3].get()])
             else:
                 saved_options.append([i, box[i].get(), shift[i].get()])
             shift[i].set(0)
     print('options saved!')
+    print(saved_options)
     
 def apply_presaved(frame):
     new_frame = frame
@@ -59,13 +64,17 @@ def apply_presaved(frame):
         shift = saved_options[i][2]
         if fun == 0:
             new_frame = fun_detail.detail(new_frame, shift, option)
+            new_frame = new_frame.astype(np.uint8)
 #        elif fun == 1:
 #            new_frame = fun_light.light(new_frame, shift, option)
+#            new_frame = new_frame.astype(np.uint8)
         elif fun == 2:
             new_frame = fun_color.HSL(new_frame, shift, option)
+            new_frame = new_frame.astype(np.uint8)
         elif fun == 3:
             color = saved_options[i][3]
             new_frame = fun_color.color_HSL(new_frame, color, shift, option)
+            new_frame = new_frame.astype(np.uint8)
         else:
             print('erorr in APPLY!')
             print(saved_options)    
@@ -94,7 +103,6 @@ while True:
         
         end_img = apply(frame, box, shift)                
         
-        end_img = end_img.astype(np.uint8)
         end_img = cv2.flip(end_img, 1)
         show_img = cv2.cvtColor(end_img, cv2.COLOR_BGR2RGB)
         show_img = Image.fromarray(show_img)

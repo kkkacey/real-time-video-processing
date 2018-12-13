@@ -28,7 +28,7 @@ def HSL(img, shift, option):
 def hue (img, shift):
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 #    TODO: hue range should not exceeds [0,180]
-    hue = np.uint8(img_hsv + [shift, 0, 0])
+    hue = np.uint8(np.clip(img_hsv + [shift, 0, 0], 0, 255))
     reverse_bgr_img = cv2.cvtColor(hue, cv2.COLOR_HSV2BGR)
     return reverse_bgr_img
 
@@ -36,7 +36,7 @@ def hue (img, shift):
 def saturation (img, shift):
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 #    TODO: range should not exceeds [0,255]
-    hue = np.uint8(img_hsv + [0, shift, 0])
+    hue = np.uint8(np.clip(img_hsv + [0, shift, 0], 0, 255))
     reverse_bgr_img = cv2.cvtColor(hue, cv2.COLOR_HSV2BGR)
     return reverse_bgr_img
     
@@ -44,7 +44,7 @@ def saturation (img, shift):
 def luminance (img, shift):
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 #    TODO: range should not exceeds [0,255]
-    hue = np.uint8(img_hsv + [0, 0, shift])
+    hue = np.uint8(np.clip(img_hsv + [0, 0, shift], 0, 255))
     reverse_bgr_img = cv2.cvtColor(hue, cv2.COLOR_HSV2BGR)
     return reverse_bgr_img
 
@@ -63,6 +63,7 @@ def color_HSL(img, color, shift, option):
 
     
 def color_hue (img, color, shift):
+#    TODO: don't forget to clip
 #    nimg = img
     hsv_color = color_hsv(color)
     hue = hsv_color[0,0,0]
@@ -77,8 +78,6 @@ def color_hue (img, color, shift):
     
 #    img_hsv_shift = cv2.add(img_hsv, np.array([shift, 0, 0]), mask = color_mask)
     img_hsv_shift = img_hsv
-#    for chan in range(3):
-#        img_hsv_shift[:,:,chan] = np.dot((img_hsv + [shift, 0, 0])[:,:,chan], color_mask)
     img_hsv_mask_shift = cv2.add(img_hsv[:,:,0], shift, mask = color_mask)
     img_hsv_shift[:,:,0] = cv2.add(img_hsv_mask_shift, img_hsv[:,:,0], mask = 1 - color_mask)
     img_hsv_shift = np.uint8(img_hsv_shift)
