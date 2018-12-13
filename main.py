@@ -6,7 +6,7 @@ import sys
 import numpy as np 
 import cv2
 import tkinter as Tk 
-import tkinter.ttk as ttk
+#import tkinter.ttk as ttk
 from PIL import Image
 from PIL import ImageTk
 
@@ -14,7 +14,7 @@ import fun_detail
 import fun_GUI
 import fun_color
 import fun_light
-import tools
+#import tools
 
 global new_shift
 global new_box
@@ -29,16 +29,23 @@ def apply(img, box, shift):
         option = box[1].get()
         end_img = fun_light.light(end_img, shift[1].get(), option)
         end_img = end_img.astype(np.uint8)
-    if (box[2].get() != '')  & (box[3].get() == ''):
-        option = box[2].get()
-        end_img = fun_color.HSL(end_img, shift[2].get(), option)
-        end_img = end_img.astype(np.uint8)
-    elif (box[2].get() != '')  & (box[3].get() != ''):
-        color = box[3].get()
-        option = box[2].get()
-        end_img = fun_color.color_HSL(end_img, color, shift[3].get(), option)
-        end_img = end_img.astype(np.uint8)
-#    end_img = tools.clip_bitwise(end_img, 0, 255)   # seriously slows the program
+    if box[2].get() != '':
+        if (shift[2].get() == 0) & (box[3].get() != '') & (shift[3].get() != 0):
+            color = box[3].get()
+            option = box[2].get()
+            end_img = fun_color.color_HSL(end_img, color, shift[3].get(), option)
+            end_img = end_img.astype(np.uint8)
+        elif shift[2].get() != 0:
+            option = box[2].get()
+            end_img = fun_color.HSL(end_img, shift[2].get(), option)
+            end_img = end_img.astype(np.uint8)
+            if (box[3].get() != '') & (shift[3].get() != 0):
+                color = box[3].get()
+                option = box[2].get()
+                end_img = fun_color.color_HSL(end_img, color, shift[3].get(), option)
+                end_img = end_img.astype(np.uint8)
+        else:
+            print('error!')
     return end_img
 
 saved_options = []
@@ -47,11 +54,11 @@ def apply_get(shift, box):
     global saved_options
     for i in range(len(box) - 1):
         if (box[i].get() != '') & (shift[i].get() != 0):
-            if (i == 2) & (box[3].get() != ''):
-                saved_options.append([3, box[2].get(), shift[3].get(), box[3].get()])
-            else:
-                saved_options.append([i, box[i].get(), shift[i].get()])
+            saved_options.append([i, box[i].get(), shift[i].get()])
             shift[i].set(0)
+        elif (i == 2) & (box[3].get() != '') & (shift[3].get() != 0):
+            saved_options.append([3, box[2].get(), shift[3].get(), box[3].get()])
+            shift[3].set(0)
     print('options saved!')
     print(saved_options)
     
@@ -65,9 +72,9 @@ def apply_presaved(frame):
         if fun == 0:
             new_frame = fun_detail.detail(new_frame, shift, option)
             new_frame = new_frame.astype(np.uint8)
-#        elif fun == 1:
-#            new_frame = fun_light.light(new_frame, shift, option)
-#            new_frame = new_frame.astype(np.uint8)
+        elif fun == 1:
+            new_frame = fun_light.light(new_frame, shift, option)
+            new_frame = new_frame.astype(np.uint8)
         elif fun == 2:
             new_frame = fun_color.HSL(new_frame, shift, option)
             new_frame = new_frame.astype(np.uint8)
@@ -97,7 +104,6 @@ while True:
 
         [ok, frame] = cap.read()          #   Read one frame       
          
-#        frame = button_apply(frame, new_shift, new_box)
         if saved_options != []:
             frame = apply_presaved(frame)
         

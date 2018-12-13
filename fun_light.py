@@ -17,28 +17,32 @@ def light(img, level, option):
     return new_img
     
 def contrast(img, level):
-    contrast = level
-    brightness = 255
-    nimg = contrast_brightness(img, level, brightness, contrast)
+    contrast = level / 100
+    brightness = 0
+    nimg = contrast_brightness(img, brightness, contrast)
     return nimg
 
 def brightness(img, level):
-    contrast = 255
-    brightness = level
-    nimg = contrast_brightness(img, level, brightness, contrast)
+    contrast = 0
+    brightness = level / 100
+    nimg = contrast_brightness(img, brightness, contrast)
     return nimg
 
-def contrast_brightness(img, shift, brightness, contrast):
-    B = brightness / 255.
-    c = contrast / 255.
-    k = math.tan( (45 + 44 * c) / 180 * math.pi );
+def contrast_brightness(img, brightness, contrast):
+    b = brightness
+    c = contrast
+    k = math.tan( (45 + 44 * c) / 180 * math.pi );  
+#    b, c value range are [-1,1]
     
     nimg = img
     
+    p = np.zeros(256)
+    for i in range(256):
+        p[i] = (i - 127.5 * (1 - b)) * k + 127.5 * (1 + b)
+    p = np.clip(p, 0, 255)
     fimg = img.flatten()
     for i in range(len(fimg)):
-        fimg[i] = (i - 127.5 * (1 - B)) * k + 127.5 * (1 + B)
-    
+        fimg[i] = p[fimg[i]]
     nimg = np.reshape(fimg, img.shape)
     return nimg
 

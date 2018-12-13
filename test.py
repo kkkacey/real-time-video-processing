@@ -6,6 +6,7 @@ testing functions
 import cv2
 import fun_color
 import fun_detail
+import fun_light
 import tools
 import numpy as np
 
@@ -20,7 +21,7 @@ color = 'blue'
 
 #nimg = nimg.astype(np.uint8)
 
-nimg = fun_color.color_HSL(img, 'blue', 0, 'hue')
+nimg = fun_light.contrast(img, 3)
 
 # the functions has done clipping already, but in the wrong way
 #nimg = tools.clip_bitwise(nimg, 0, 255)
