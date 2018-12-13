@@ -6,9 +6,29 @@ functions of the light
 import numpy as np
 import math
 
+def light(img, level, option):
+    if option == 'contrast':
+        new_img = contrast(img, level)
+    elif option == 'brightness':
+        new_img = brightness(img, level)
+    else:
+#        print('error in light')
+        new_img = img
+    return new_img
+    
+def contrast(img, level):
+    contrast = level
+    brightness = 255
+    nimg = contrast_brightness(img, level, brightness, contrast)
+    return nimg
 
-# contrast & contrast
-def contrast_brightness(img, level):
+def brightness(img, level):
+    contrast = 255
+    brightness = level
+    nimg = contrast_brightness(img, level, brightness, contrast)
+    return nimg
+
+def contrast_brightness(img, shift, brightness, contrast):
     B = brightness / 255.
     c = contrast / 255.
     k = math.tan( (45 + 44 * c) / 180 * math.pi );
@@ -17,9 +37,9 @@ def contrast_brightness(img, level):
     
     fimg = img.flatten()
     for i in range(len(fimg)):
-        nimg[i] = (i - 127.5 * (1 - B)) * k + 127.5 * (1 + B)
+        fimg[i] = (i - 127.5 * (1 - B)) * k + 127.5 * (1 + B)
     
-    nimg = np.reshape(nimg, np.shape(img))
+    nimg = np.reshape(fimg, img.shape)
     return nimg
 
 # automated-contrast augmentation
