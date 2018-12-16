@@ -10,92 +10,23 @@ import tkinter as Tk
 from PIL import Image
 from PIL import ImageTk
 
-import fun_detail
+#import fun_detail
 import fun_GUI
-import fun_color
-import fun_light
-#import tools
+#import fun_color
+#import fun_light
 
-global new_shift
-global new_box
+def shoot(end_img):
+    import time
+    localtime = time.localtime()[0:5]
+    timestr = str(localtime[0])[2:4]
+    for i in range(1,5):
+        timestr += str(localtime[i])
+        if i == 2:
+            timestr += '_'
+    cv2.imwrite('photoshot' + timestr + '.jpg', end_img)
+    print('photoshot saved.')
 
-def apply(img, box, shift):
-    end_img = img
-    if box[0].get() != '':
-        option = box[0].get()
-        end_img = fun_detail.detail(end_img, shift[0].get(), option)    
-        end_img = end_img.astype(np.uint8)
-    if box[1].get() != '':
-        option = box[1].get()
-        end_img = fun_light.light(end_img, shift[1].get(), option)
-        end_img = end_img.astype(np.uint8)
-    if box[2].get() != '':
-        if (shift[2].get() == 0) & (box[3].get() != '') & (shift[3].get() != 0):
-            color = box[3].get()
-            option = box[2].get()
-            end_img = fun_color.color_HSL(end_img, color, shift[3].get(), option)
-            end_img = end_img.astype(np.uint8)
-        elif shift[2].get() != 0:
-            option = box[2].get()
-            end_img = fun_color.HSL(end_img, shift[2].get(), option)
-            end_img = end_img.astype(np.uint8)
-            if (box[3].get() != '') & (shift[3].get() != 0):
-                color = box[3].get()
-                option = box[2].get()
-                end_img = fun_color.color_HSL(end_img, color, shift[3].get(), option)
-                end_img = end_img.astype(np.uint8)
-        else:
-            print('error!')
-    return end_img
-
-saved_options = []
-    
-def apply_get(shift, box):
-    global saved_options
-    for i in range(len(box) - 1):
-        if (box[i].get() != '') & (shift[i].get() != 0):
-            saved_options.append([i, box[i].get(), shift[i].get()])
-            shift[i].set(0)
-        elif (i == 2) & (box[3].get() != '') & (shift[3].get() != 0):
-            saved_options.append([3, box[2].get(), shift[3].get(), box[3].get()])
-            shift[3].set(0)
-    print('options saved!')
-    print(saved_options)
-    
-def apply_presaved(frame):
-    new_frame = frame
-    global saved_options
-    for i in range(len(saved_options)):
-        fun = saved_options[i][0]
-        option = saved_options[i][1]
-        shift = saved_options[i][2]
-        if fun == 0:
-            new_frame = fun_detail.detail(new_frame, shift, option)
-            new_frame = new_frame.astype(np.uint8)
-        elif fun == 1:
-            new_frame = fun_light.light(new_frame, shift, option)
-            new_frame = new_frame.astype(np.uint8)
-        elif fun == 2:
-            new_frame = fun_color.HSL(new_frame, shift, option)
-            new_frame = new_frame.astype(np.uint8)
-        elif fun == 3:
-            color = saved_options[i][3]
-            new_frame = fun_color.color_HSL(new_frame, color, shift, option)
-            new_frame = new_frame.astype(np.uint8)
-        else:
-            print('erorr in APPLY!')
-            print(saved_options)    
-    return new_frame
-
-def reset(shift):
-    for i in range(len(shift)):
-        shift[i].set(0)
-    global saved_options
-    saved_options = []
-
-top, Canvas, box, shift, B_apply, B_reset = fun_GUI.initGUI()
-B_apply.configure(command = lambda: apply_get(shift, box))
-B_reset.configure(command = lambda: reset(shift))
+top, Canvas, box, shift, saved_options, B_shoot = fun_GUI.initGUI()
 
 cap = cv2.VideoCapture(0)
 
@@ -103,11 +34,11 @@ while True:
     try:
 
         [ok, frame] = cap.read()          #   Read one frame       
-         
-        if saved_options != []:
-            frame = apply_presaved(frame)
         
-        end_img = apply(frame, box, shift)                
+        if fun_GUI.saved_options != []:
+            frame = fun_GUI.apply_presaved(frame)
+        
+        end_img = fun_GUI.apply(frame, box, shift)                
         
         end_img = cv2.flip(end_img, 1)
         show_img = cv2.cvtColor(end_img, cv2.COLOR_BGR2RGB)
@@ -115,7 +46,8 @@ while True:
         show_img= ImageTk.PhotoImage(image = show_img) 
         Canvas.create_image(0, 0, anchor = Tk.NW,  image = show_img)
     
-    
+        B_shoot.configure(command = lambda: shoot(end_img))
+        
         key = cv2.waitKey(1)
         if key == ord('p'):
             cv2.imwrite('save.jpg', end_img)
@@ -130,4 +62,3 @@ while True:
         cv2.destroyAllWindows()
         top.quit()
         top.destroy()
-

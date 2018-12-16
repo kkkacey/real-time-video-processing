@@ -7,11 +7,13 @@ H, S, V ...  in a seperate color
 import cv2
 import numpy as np
 
+
 def HSL(img, shift, option):
     if option == "hue":
         new_img = hue(img, shift)
     elif option == "saturation":
         new_img = saturation(img, shift)
+#        new_img = naturalsaturation(img, shift)
     elif option == "luminance":
         new_img = luminance(img, shift)
     else:
@@ -23,21 +25,41 @@ def HSL(img, shift, option):
 def hue (img, shift):
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     hue = np.uint8(np.clip(img_hsv + [shift, 0, 0], 0, 255))
-    reverse_bgr_img = cv2.cvtColor(hue, cv2.COLOR_HSV2BGR)
+    reverse_bgr_img = np.clip(cv2.cvtColor(hue, cv2.COLOR_HSV2BGR), 0, 255)
     return reverse_bgr_img
 
 # overall sturation
 def saturation (img, shift):
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     hue = np.uint8(np.clip(img_hsv + [0, shift, 0], 0, 255))
-    reverse_bgr_img = cv2.cvtColor(hue, cv2.COLOR_HSV2BGR)
+    reverse_bgr_img = np.clip(cv2.cvtColor(hue, cv2.COLOR_HSV2BGR), 0, 255)
     return reverse_bgr_img
+
+#def naturalsaturation(img, shift):
+#    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+#    nimg_hsv = img_hsv
+#    if shift != 0:
+#        p = np.zeros(256)
+#        if shift > 0:
+#            r = - shift / 200
+#            a =  * shift
+#            for i in range(1, 256):
+#                p[i] = -i ** r * a + 1
+#        elif shift < 0:
+#            r = - shift / 2
+#            for i in range(1, 256):
+#                p[i] = i ** r + 1
+#    #    p = np.clip(p, 0, 255)
+#        p = p * 256 / p.max()
+#        nimg_hsv[:,:,1] = p[img_hsv[:,:,1]]
+#    nimg = np.clip(cv2.cvtColor(nimg_hsv, cv2.COLOR_HSV2BGR), 0, 255)
+#    return nimg, p
     
 # overall luminance
 def luminance (img, shift):
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     hue = np.uint8(np.clip(img_hsv + [0, 0, shift], 0, 255))
-    reverse_bgr_img = cv2.cvtColor(hue, cv2.COLOR_HSV2BGR)
+    reverse_bgr_img = np.clip(cv2.cvtColor(hue, cv2.COLOR_HSV2BGR), 0, 255)
     return reverse_bgr_img
 
 
@@ -78,7 +100,7 @@ def color_hue (img, color, shift):
     img_hsv_final = cv2.bitwise_or(hue_shift_segment, untouch_segment)
     
     
-    reverse_bgr_img = cv2.cvtColor(img_hsv_final, cv2.COLOR_HSV2BGR)
+    reverse_bgr_img = np.clip(cv2.cvtColor(img_hsv_final, cv2.COLOR_HSV2BGR), 0, 255)
     return reverse_bgr_img
     
 def color_saturation (img, color, shift):
@@ -96,9 +118,8 @@ def color_saturation (img, color, shift):
     untouch_segment = cv2.bitwise_and(img_hsv, img_hsv, mask = 255 - color_mask)
     img_hsv_final = cv2.bitwise_or(shift_segment, untouch_segment)
     
-    nimg = cv2.cvtColor(img_hsv_final, cv2.COLOR_HSV2BGR)
+    nimg = np.clip(cv2.cvtColor(img_hsv_final, cv2.COLOR_HSV2BGR), 0, 255)
     return nimg
-
 
 def color_luminance(img, color, shift):
     hsv_color = color_hsv(color)
@@ -115,7 +136,7 @@ def color_luminance(img, color, shift):
     untouch_segment = cv2.bitwise_and(img_hsv, img_hsv, mask = 255 - color_mask)
     img_hsv_final = cv2.bitwise_or(shift_segment, untouch_segment)
     
-    nimg = cv2.cvtColor(img_hsv_final, cv2.COLOR_HSV2BGR)
+    nimg = np.clip(cv2.cvtColor(img_hsv_final, cv2.COLOR_HSV2BGR), 0, 255)
     return nimg
 
 
@@ -128,8 +149,8 @@ def color_hsv(color):
         color_rgb = np.uint8([[[255, 0, 0]]])
     elif color == 'yellow':
         color_rgb = np.uint8([[[0, 255, 255]]])
-    elif color == 'magenta':
-        color_rgb = np.uint8([[[255, 0, 255]]])
+    elif color == 'orange':
+        color_rgb = np.uint8([[[0, 128, 255]]])
     elif color == 'cyan':
         color_rgb = np.uint8([[[255, 255, 0]]])
     else:
