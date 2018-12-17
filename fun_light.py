@@ -112,14 +112,14 @@ def shadows(img, level):
     shadows_removed = np.uint8(np.clip(highlight_segment + [0, 0, level], 0, 255))
     untouch_segment = cv2.bitwise_and(img_hsv, img_hsv, mask = 255 - mask)
     nimg_hsv = cv2.bitwise_or(shadows_removed, untouch_segment)
-    reverse_bgr_img = cv2.cvtColor(nimg_hsv, cv2.COLOR_HSV2BGR)
+    reverse_bgr_img = np.clip(cv2.cvtColor(nimg_hsv, cv2.COLOR_HSV2BGR), 0, 255)
     return reverse_bgr_img
 
 #    white: the relatively bright part of the image
 def whitehist(img, level):
     nimg = img
     if level != 0:
-        img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+#        img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         
         a = np.abs(level) / 50
         f = np.cumsum(np.ones((256,1)))
@@ -131,15 +131,17 @@ def whitehist(img, level):
         g_high = g_high * cutoff / g_high.max() - cutoff + 256
         g = np.append(f[0:256 - cutoff], g_high)
         g = np.clip(g, 0, 255)
-        img_hsv[:,:,2] = g[img_hsv[:,:,2]] 
+#        img_hsv[:,:,2] = g[img_hsv[:,:,2]] 
+        for i in range(3):
+            nimg[:,:,i] = g[img[:,:,i]]
         
-        nimg = cv2.cvtColor(img_hsv, cv2.COLOR_HSV2BGR)
+#        nimg = cv2.cvtColor(img_hsv, cv2.COLOR_HSV2BGR)
     return nimg
 
 def blackhist(img, level):
     nimg = img
     if level != 0:
-        img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+#        img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         
         a = np.abs(level) / 80
         f = np.cumsum(np.ones((256,1)))
@@ -153,7 +155,9 @@ def blackhist(img, level):
         g = np.append(g_low, g_high)
         g = np.clip(g, 0, 255)
         
-        img_hsv[:,:,2] = g[img_hsv[:,:,2]] 
+#        img_hsv[:,:,2] = g[img_hsv[:,:,2]] 
+        for i in range(3):
+            nimg[:,:,i] = g[img[:,:,i]]
         
-        nimg = cv2.cvtColor(img_hsv, cv2.COLOR_HSV2BGR)
+#        nimg = cv2.cvtColor(img_hsv, cv2.COLOR_HSV2BGR)
     return nimg

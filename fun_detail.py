@@ -26,26 +26,16 @@ def blur (img, shift):
     return new_img
 
 def sharpen(img, shift):
-#    kernel = np.array(np.dot([[0,-1,0], [-1,15 - shift,-1], [0,-1,0]], 1/(11-shift)))
-#    kernel = np.array(np.dot([[-1,-1,-1], [-1,19 - shift,-1], [-1,-1,-1]], 1/(11-shift)))
     blur_kernel = np.ones((3,3))
     blur_kernel = blur_kernel / np.sum(blur_kernel)
     lam = np.abs(shift)/50
     new_img = img + np.dot(lam, ( img - cv2.filter2D(img, -1, blur_kernel) ) )
-#            this sharpen algorithm is like adding noise to the blurred image
-#            not as expected as sharpening edges and add noise when the level is high
-#            find a better sharpen algorithm instead, write this comparison into the report
-#            build GUI as soon as possible
-#    the illustrated unsharpen method is not desired.
     new_img = np.clip(new_img, 0, 255)
     return new_img
 
 
 # denoise: use average filter insatead of gaussian filter?
 def denoise(img, shift):
-#    blur_kernel = np.ones((shift * 2 + 1, shift * 2 + 1))
-#    blur_kernel = blur_kernel / np.sum(blur_kernel)
-#    new_img = cv2.filter2D(img, -1, blur_kernel)
     new_img = cv2.blur(img, (shift * 2 + 1, shift * 2 + 1))
     new_img = np.clip(new_img, 0, 255)
     
