@@ -58,8 +58,8 @@ def initGUI ():
                                                        'contrast',
                                                        'highlight',
                                                        'shadows', 
-                                                       'white levels',
-                                                       'black levels'))
+                                                       'whites',
+                                                       'blacks'))
     C_HSL    = ttk.Combobox(top, width = 10, values = ('', 'red','blue',
                                                        'green', 'orange',
                                                        'yellow', 'cyan'))
@@ -175,33 +175,42 @@ def reset(shift):
     
 def filter1(): # 'old photo'
     global saved_options
-    saved_options.append([0, 'sharpen', 4])
-    saved_options.append([1, 'highlight', 10])
-    saved_options.append([2, 'hue', 3])
-    saved_options.append([1, 'white levels', 5])
-    saved_options.append([0, 'denoise', 1])
-    saved_options.append([2, 'saturation', 5])
-#    saved_options.append([3, 'hue', 8, 'orange'])
-    saved_options.append([3, 'hue', -9, 'blue'])
+    options = [[0, 'sharpen', 4],
+               [1, 'highlight', 10],
+               [2, 'hue', 3],
+               [1, 'white levels', 5],
+               [0, 'denoise', 1],
+               [2, 'saturation', 5],
+               [3, 'hue', -9, 'blue']]
+    for i in range(len(options)):
+        saved_options.append(options[i])
 
 def filter2(): # 'vivid'
     global saved_options
-    saved_options.append([2, 'saturation', 4])
-    saved_options.append([1, 'brightness', 3]) 
-    saved_options.append([1, 'contrast', 10])
-    saved_options.append([1, 'highlight', 7])
-    saved_options.append([1, 'white levels', 6])
-    saved_options.append([1, 'black levels', -1])
+    options = [[2, 'saturation', 4], 
+               [1, 'brightness', 3],  
+               [1, 'contrast', 10], 
+               [1, 'highlight', 2],
+               [1, 'highlight', 2],
+               [1, 'highlight', 2],
+               [1, 'white levels', 6], 
+               [1, 'black levels', -1]]
+    for i in range(len(options)):
+        saved_options.append(options[i])
     
 def filter3():  # 'fade'
     global saved_options
-    saved_options.append([2, 'saturation', -30])
-    saved_options.append([1, 'contrast', 8])
-    saved_options.append([1, 'shadows', 3])
-    saved_options.append([1, 'white levels', 2])
-    saved_options.append([1, 'black levels', -4])
-    saved_options.append([0, 'sharpen', 1])
-    saved_options.append([3, 'saturation', -20, 'red'])
-    saved_options.append([3, 'saturation', -20, 'blue'])
+    options = [[2, 'saturation', -20],
+               [1, 'contrast', -5],
+               [1, 'shadows', 3],
+               [1, 'white levels', 4],
+               [1, 'black levels', -4],
+               [0, 'sharpen', 1],
+               [3, 'saturation', -40, 'red'],
+               [3, 'saturation', -10, 'yellow'],
+               [3, 'hue', 5, 'yellow'],
+               [3, 'saturation', -20, 'blue']]
+    for i in range(len(options)):
+        saved_options.append(options[i])
     
     

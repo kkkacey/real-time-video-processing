@@ -13,13 +13,14 @@ def light(img, level, option):
 #        new_img = auto_contrast(img, level)
     elif option == 'brightness':
         new_img = brightness(img, level)
+#        new_img = c_b(img, level)
     elif option == 'highlight':
         new_img = highlight(img, level)
-    elif option == 'white levels':
+    elif option == 'whites':
         new_img = whitehist(img, level)
     elif option == 'shadows':
         new_img = shadows(img, level)
-    elif option == 'black levels':
+    elif option == 'blacks':
         new_img = blackhist(img, level)
     else:
 #        print('error in light')
@@ -27,12 +28,9 @@ def light(img, level, option):
     return new_img
     
 def contrast(img, level):
-    if level == 10:
-        nimg = auto_contrast(img, level)
-    else:
-        contrast = level / 100
-        brightness = 0
-        nimg = contrast_brightness(img, brightness, contrast)
+    contrast = level / 50
+    brightness = 0
+    nimg = contrast_brightness(img, brightness, contrast)
     return nimg
 
 def brightness(img, level):
@@ -49,6 +47,13 @@ def brightness(img, level):
     p = np.clip(p, 0, 255)
     for i in range(3):
         nimg[:,:,i] = p[img[:,:,i]]
+        
+    return nimg
+
+#def c_b(img, level):
+#    contrast = level / 50
+#    brightness = level / 50
+#    nimg = contrast_brightness(img, brightness, contrast)
         
     return nimg
 
@@ -69,34 +74,53 @@ def contrast_brightness(img, brightness, contrast):
     return nimg
 
 # automated-contrast augmentation
-def auto_contrast(img, level):
-    img_histeq = img
-    if level != 0:
-        for i in range(3):
-            hist,bins = np.histogram(img[:,:,i].flatten(), 256, [0,256])
-            cdf = hist.cumsum()
-            cdf_normalized = cdf * 255 / cdf.max()
-            img_histeq[:,:,i] = cdf_normalized[img[:,:,i]]  
-    return img_histeq
+#def auto_contrast(img, level):
+#    img_histeq = img
+#    if level != 0:
+#        for i in range(3):
+#            hist,bins = np.histogram(img[:,:,i].flatten(), 256, [0,256])
+#            cdf = hist.cumsum()
+#            cdf_normalized = cdf * 255 / cdf.max()
+#            img_histeq[:,:,i] = cdf_normalized[img[:,:,i]]  
+#    return img_histeq
 
 
 #    hightlight: the most bright part of the image
 def highlight(img, level):
-    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-
-    hightligt_max = img_hsv[:,:,2].max()
+#    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+#
+#    hightligt_max = img_hsv[:,:,2].max()
+#    
+#    kernel = np.ones((3,3))
+#    kernel = kernel / sum(kernel)
+#    lower = np.array([0, 0, hightligt_max - np.abs(level) * 3])
+#    upper = np.array([255, 255, hightligt_max])
+#    highlight_mask = cv2.inRange(img_hsv, lower, upper)   
+#    highlight_segment = cv2.bitwise_and(img_hsv, img_hsv, mask = highlight_mask)
+#    highlight_removed = np.uint8(np.clip(highlight_segment - [0, 0, level*2], 0, 255))
+#    untouch_segment = cv2.bitwise_and(img_hsv, img_hsv, mask = 255 - highlight_mask)
+#    nimg_hsv = cv2.bitwise_or(highlight_removed, untouch_segment)
+#    nimg = cv2.cvtColor(nimg_hsv, cv2.COLOR_HSV2BGR)
     
-    kernel = np.ones((3,3))
-    kernel = kernel / sum(kernel)
-    lower = np.array([0, 0, hightligt_max - np.abs(level) * 5])
-    upper = np.array([255, 255, hightligt_max])
-    highlight_mask = cv2.inRange(img_hsv, lower, upper)   
-    highlight_segment = cv2.bitwise_and(img_hsv, img_hsv, mask = highlight_mask)
-    highlight_removed = np.uint8(np.clip(highlight_segment - [0, 0, level*2], 0, 255))
-    untouch_segment = cv2.bitwise_and(img_hsv, img_hsv, mask = 255 - highlight_mask)
-    nimg_hsv = cv2.bitwise_or(highlight_removed, untouch_segment)
-    reverse_bgr_img = cv2.cvtColor(nimg_hsv, cv2.COLOR_HSV2BGR)
-    return reverse_bgr_img
+    nimg = img
+    if level != 0:
+#        img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        
+#        a = np.abs(level) / 50
+        f = np.cumsum(np.ones((256,1)))
+        cutoff = np.abs(level) * 8 
+#        if level > 0:
+        g_high = f[256 - cutoff:256] - level * 2
+#        elif level < 0:
+#            g_high = np.log(f[0:cutoff]) 
+#        g_high = g_high * cutoff / g_high.max() - cutoff + 256
+        g = np.append(f[0:256 - cutoff], g_high)
+        g = np.clip(g, 0, 255)
+#        img_hsv[:,:,2] = g[img_hsv[:,:,2]] 
+        for i in range(3):
+            nimg[:,:,i] = g[img[:,:,i]]
+            
+    return nimg
 
 def shadows(img, level):
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -121,7 +145,7 @@ def whitehist(img, level):
     if level != 0:
 #        img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         
-        a = np.abs(level) / 50
+        a = np.abs(level) / 100
         f = np.cumsum(np.ones((256,1)))
         cutoff = np.abs(level) * 8
         if level > 0:
